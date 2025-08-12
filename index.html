@@ -3,50 +3,959 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethcontrust Mini App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Ethcon Trust Cloud Mining Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body>
-    <!-- Header with Centered Title -->
-    <div class="header">
-        <h1>Ethcontrust : Secure & Simple Decentralized Staking</h1>
-    </div>
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Define a new, more vibrant color palette and gradients */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #a770ef, #cf8bf3, #f538ff); /* More vibrant purple-pink */
+            --secondary-gradient: linear-gradient(135deg, #00f2fe, #4facfe); /* Aqua-blue */
+            --background-gradient: radial-gradient(circle at 50% 0%, rgba(20, 30, 48, 0.9) 0%, rgba(10, 15, 25, 1) 75%);
+            --glass-bg: rgba(255, 255, 255, 0.08); /* Lighter glass effect */
+            --border-gradient: linear-gradient(45deg, #cf8bf3, #f538ff, #00f2fe);
+            --shadow-light: rgba(255, 255, 255, 0.08);
+            --shadow-dark: rgba(0, 0, 0, 0.5);
+            --neon-blue: #00f2fe;
+            --neon-purple: #f538ff;
+            --neon-green: #39ff14; /* New neon green color for the ETH logo */
+        }
 
-    <!-- Main Content -->
-    <div class="content">
-        <div class="stats-container">
-            <div class="stats-row">
-                <div class="stat-item">
-                    <span class="stat-label">Total Participants</span>
-                    <span class="stat-value">100+</span>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-gradient);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particle effect background animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0h100v100H0z' fill='rgba(10, 15, 25, 0)'/%3E%3Ccircle cx='25' cy='75' r='1' fill='rgba(255, 255, 255, 0.1)'/%3E%3Ccircle cx='75' cy='25' r='1' fill='rgba(255, 255, 255, 0.1)'/%3E%3C/svg%3E");
+            background-size: 50px 50px;
+            animation: move-bg 150s linear infinite;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        @keyframes move-bg {
+            from { background-position: 0 0; }
+            to { background-position: 500px 500px; }
+        }
+
+        .glassmorphic-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px var(--shadow-dark), 0 0 10px var(--shadow-light) inset;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .glassmorphic-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 48px var(--shadow-dark), 0 0 15px var(--shadow-light) inset;
+        }
+
+        .gradient-border-card {
+            position: relative;
+            background: #1a202c;
+            border-radius: 1.5rem;
+            z-index: 10;
+        }
+
+        .gradient-border-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--border-gradient);
+            border-radius: 1.6rem;
+            z-index: -1;
+            opacity: 0.8;
+            filter: blur(2px);
+        }
+        
+        .level-card.inactive:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .neon-accent {
+            box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        }
+
+        .pulse-effect {
+            animation: pulse-neon 2s infinite ease-in-out;
+        }
+        
+        .tab-active {
+            box-shadow: 0 0 15px var(--neon-purple);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse-neon {
+            0%, 100% {
+                box-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue);
+            }
+            50% {
+                box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px var(--shadow-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            max-width: 90%;
+            width: 400px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+        
+        /* New Styles for the Daily Profit Swap Section */
+        .swap-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .icon-text-wrapper {
+            position: relative; /* Add position relative for the glow effect */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            width: 100px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .claim-button-glow {
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .claim-button-glow:hover {
+            box-shadow: 0 0 20px var(--neon-green), 0 0 30px var(--neon-green);
+        }
+
+        /* Dual Arrows Animation */
+        @keyframes dual-arrow-move {
+            0% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            100% { transform: translateX(-10px); }
+        }
+        @keyframes dual-arrow-move-reverse {
+            0% { transform: translateX(10px); }
+            50% { transform: translateX(-10px); }
+            100% { transform: translateX(10px); }
+        }
+        .animated-arrow-left {
+            animation: dual-arrow-move 1.5s ease-in-out infinite;
+        }
+        .animated-arrow-right {
+            animation: dual-arrow-move-reverse 1.5s ease-in-out infinite;
+        }
+
+        /* Style for the arrows container */
+        .swap-arrows-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 50px;
+        }
+
+        /* Light/Glow effect for the text */
+        .claim-text-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 9999px; /* Make it a circle */
+            box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.7); /* White glowing shadow */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none; /* Make it not block clicks */
+        }
+
+        .claim-text-glow.active {
+            opacity: 1;
+            animation: glow-pulse 3s infinite ease-in-out;
+        }
+        
+        @keyframes glow-pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        
+        /* Partner logo specific styling */
+        .partner-logo-container {
+            width: 100%;
+            max-width: 96px; /* Constrain container width */
+            margin: 0 auto;
+        }
+
+        /* Adjustments for better logo visibility */
+        .partner-logo-img {
+            max-height: 56px; /* Increased height */
+            width: auto;
+            object-fit: contain; /* Ensure the entire image is visible within its bounds */
+            max-width: 100%;
+        }
+
+        /* Wallet Connect Bottom Bar */
+        .wallet-connect-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -2px 10px var(--shadow-dark);
+        }
+    </style>
+</head>
+<body class="p-4 min-h-screen flex flex-col items-center justify-start">
+    <div class="w-full max-w-6xl p-4 md:p-8">
+
+        <!-- Main Heading and Connect Wallet Button -->
+        <header class="w-full mb-8 z-50">
+            <nav class="glassmorphic-card p-4 flex justify-between items-center rounded-2xl">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="shield" class="w-8 h-8 text-indigo-400"></i>
+                    <h1 class="text-xl md:text-2xl font-bold gradient-text">EthconTrust</h1>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Total Revenue</span>
-                    <span class="stat-value">215.72</span>
+                <div class="flex items-center space-x-4">
+                    <span class="text-xs text-green-400 flex items-center space-x-1">
+                        <i data-lucide="circle" class="w-3 h-3 fill-green-400 pulse-effect"></i>
+                        <span>Online</span>
+                    </span>
+                    <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                        Connect Wallet
+                    </button>
                 </div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-item">
-                    <span class="stat-label">ETH/USD</span>
+            </nav>
+        </header>
+
+        <!-- New Hero Section with Title and Stats -->
+        <div class="w-full text-center mt-12 mb-12 fade-in">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text leading-tight">
+                Secure & Simple Decentralized Staking
+            </h1>
+            <p class="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+                Build your financial future with transparent and reliable decentralized staking.
+            </p>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto glassmorphic-card p-6 mt-8">
+                <!-- Total Participants -->
+                <div class="flex flex-col items-center p-4 rounded-xl transition-all duration-300 transform hover:bg-gray-800/30">
+                    <span class="text-3xl md:text-4xl font-bold text-cyan-400">100+</span>
+                    <span class="text-sm text-gray-400">Total Participants</span>
                 </div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-item">
-                    <span class="stat-label">Nodes</span>
-                    <span class="stat-value">250</span>
+                <!-- Total Revenue -->
+                <div class="flex flex-col items-center p-4 rounded-xl transition-all duration-300 transform hover:bg-gray-800/30">
+                    <span class="text-3xl md:text-4xl font-bold text-cyan-400">215.72</span>
+                    <span class="text-sm text-gray-400">Total Revenue</span>
+                    <span class="text-xs text-gray-500">ETH/USD</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Stake</span>
-                    <span class="stat-value">321.15</span>
+                <!-- Nodes -->
+                <div class="flex flex-col items-center p-4 rounded-xl transition-all duration-300 transform hover:bg-gray-800/30">
+                    <span class="text-3xl md:text-4xl font-bold text-cyan-400">250</span>
+                    <span class="text-sm text-gray-400">Nodes</span>
+                </div>
+                <!-- Stake -->
+                <div class="flex flex-col items-center p-4 rounded-xl transition-all duration-300 transform hover:bg-gray-800/30">
+                    <span class="text-3xl md:text-4xl font-bold text-cyan-400">321.15</span>
+                    <span class="text-sm text-gray-400">Stake</span>
+                    <span class="text-xs text-gray-500">ETH/USD</span>
                 </div>
             </div>
         </div>
+
+        <!-- Tab Navigation -->
+        <div class="w-full max-w-lg mx-auto flex justify-center space-x-4 mb-8">
+            <button id="dashboard-tab" class="px-6 py-2 rounded-full font-bold transition-all duration-300 bg-indigo-600 text-white tab-active transform hover:scale-105">
+                Dashboard
+            </button>
+            <button id="profile-tab" class="px-6 py-2 rounded-full font-bold transition-all duration-300 bg-gray-700 hover:bg-gray-600 text-gray-200 transform hover:scale-105">
+                My Staking
+            </button>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <main id="dashboard-content" class="w-full space-y-8 fade-in">
+             <!-- Daily Profit Swap Section -->
+            <div class="glassmorphic-card p-6 flex flex-col items-center justify-center text-center mb-8">
+                <p class="text-md text-gray-400 mb-8">
+                    You can claim your daily mining profit now.
+                </p>
+
+                <!-- Animated Swap Icons Section -->
+                <div class="swap-container">
+                    <!-- ETH representation -->
+                    <div class="icon-text-wrapper bg-indigo-600/20 rounded-full flex items-center justify-center border-2 border-indigo-400">
+                        <span id="eth-text" class="text-3xl font-bold text-indigo-400">ETH</span>
+                        <div id="eth-glow" class="claim-text-glow"></div>
+                    </div>
+
+                    <!-- Arrow animation -->
+                    <div class="swap-arrows-container">
+                        <i data-lucide="chevrons-right" class="text-3xl text-gray-500 animated-arrow-right"></i>
+                        <i data-lucide="chevrons-left" class="text-3xl text-gray-500 animated-arrow-left"></i>
+                    </div>
+                    
+                    <!-- USDT representation -->
+                    <div class="icon-text-wrapper bg-green-600/20 rounded-full flex items-center justify-center border-2 border-green-400">
+                        <span id="usdt-text" class="text-3xl font-bold text-green-400">USDT</span>
+                        <div id="usdt-glow" class="claim-text-glow"></div>
+                    </div>
+                </div>
+                
+                <!-- Profit display -->
+                <h4 class="text-2xl font-bold text-cyan-400 mt-4 mb-4">
+                    Current Available Profit:
+                    <div id="profit-display-values" class="mt-2 text-xl font-mono text-white">
+                        <!-- JS will update this -->
+                        <span>... ETH</span> / <span>... USDT</span>
+                    </div>
+                </h4>
+                
+                <button id="claim-profit-btn" class="bg-[#39ff14]/20 hover:bg-[#39ff14]/30 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 border-2 border-green-500 shadow-lg claim-button-glow">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                        <span id="claim-button-text">Claim Daily Profit</span>
+                    </div>
+                </button>
+                <p id="claim-status-message" class="mt-4 text-sm text-gray-400">
+                    <span id="claim-timer"></span>
+                </p>
+            </div>
+            
+            <!-- Mining Levels -->
+            <div class="grid grid-cols-1 gap-6">
+                <div class="lg:col-span-2 glassmorphic-card p-6 flex flex-col">
+                    <h3 class="text-xl font-bold text-gray-200 mb-4">Mining Levels</h3>
+                    <div class="relative flex-grow mt-4 overflow-y-auto space-y-4 pr-2">
+                        <!-- Lv1: Basic Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="1">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="pocket" class="w-6 h-6 text-indigo-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Basic Miner</span>
+                                    <span class="text-sm text-indigo-200" data-status="level-status">Active</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">500 – 2,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">1.8% Daily ROI</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Lv2: Advanced Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="2">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="award" class="w-6 h-6 text-gray-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Advanced Miner</span>
+                                    <span class="text-sm text-gray-400" data-status="level-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">2,001 – 5,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">2.5% Daily ROI</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Lv3: Pro Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="3">
+                             <div class="flex items-center space-x-3">
+                                <i data-lucide="gem" class="w-6 h-6 text-gray-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Pro Miner</span>
+                                    <span class="text-sm text-gray-400" data-status="level-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">5,001 – 20,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">3.2% Daily ROI</span>
+                            </div>
+                        </div>
+
+                        <!-- Lv4: Elite Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="4">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="rocket" class="w-6 h-6 text-gray-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Elite Miner</span>
+                                    <span class="text-sm text-gray-400" data-status="level-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">20,001 – 50,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">3.8% Daily ROI</span>
+                            </div>
+                        </div>
+
+                        <!-- Lv5: Master Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="5">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="crown" class="w-6 h-6 text-gray-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Master Miner</span>
+                                    <span class="text-sm text-gray-400" data-status="level-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">50,001 – 100,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">4% – 4.5% Daily ROI</span>
+                            </div>
+                        </div>
+
+                        <!-- Lv6: Legendary Miner -->
+                        <div class="mining-level-card glassmorphic-card flex justify-between items-center p-4 rounded-xl cursor-pointer" data-level="6">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="swords" class="w-6 h-6 text-gray-400"></i>
+                                <div class="flex flex-col text-left">
+                                    <span class="text-lg font-bold">Legendary Miner</span>
+                                    <span class="text-sm text-gray-400" data-status="level-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-400 block">100,001 – 500,000 USDT</span>
+                                <span class="text-lg font-bold text-cyan-400 block">4.5% – 4.8% Daily ROI</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Partners Section (New) -->
+            <div class="glassmorphic-card p-6 flex flex-col mt-8">
+                <h3 class="text-xl font-bold text-gray-200 mb-6">Our Partners</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 items-center justify-center">
+                    <!-- Partner: Coinbase -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Coinbase_Logo.png" alt="Coinbase Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Coinbase</span>
+                    </div>
+                    <!-- Partner: Metamask -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/MetaMask_Fox.svg" alt="Metamask Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Metamask</span>
+                    </div>
+                    <!-- Partner: MEXC -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://mexc.com/images/logo.png" alt="MEXC Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">MEXC</span>
+                    </div>
+                    <!-- Partner: Bitget -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://www.bitget.com/img/pc/logo.png" alt="Bitget Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Bitget</span>
+                    </div>
+                    <!-- Partner: Phantom -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://phantom.app/img/logo.png" alt="Phantom Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Phantom</span>
+                    </div>
+                    <!-- Partner: Binance -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Binance_logo.svg" alt="Binance Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Binance</span>
+                    </div>
+                    <!-- Partner: OKX -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://www.okx.com/cdn-okx/assets/imgs/200/OKX-Logo.png" alt="OKX Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">OKX</span>
+                    </div>
+                    <!-- Partner: Wallet Connect -->
+                    <div class="flex flex-col items-center space-y-2 p-2 transition-transform duration-200 hover:scale-105">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center partner-logo-container">
+                            <img src="https://walletconnect.com/walletconnect-logo.png" alt="Wallet Connect Logo" class="partner-logo-img">
+                        </div>
+                        <span class="text-sm text-gray-300">Wallet Connect</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- My Staking Content (Initially Hidden) -->
+        <div id="profile-content" class="w-full space-y-8 fade-in hidden">
+            <!-- User Info and Total Earnings -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <!-- User Level and ID -->
+                 <div class="glassmorphic-card p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-400 font-medium">Current Level</span>
+                        <i data-lucide="pocket" class="w-6 h-6 text-indigo-400"></i>
+                    </div>
+                    <div class="text-5xl font-bold gradient-text">
+                        <span id="user-level-profile">...</span>
+                    </div>
+                    <div class="text-sm text-gray-400 mt-4">
+                        User ID: <span id="user-id" class="text-gray-200 truncate font-mono">...</span>
+                    </div>
+                 </div>
+                 <!-- Total Earnings Card -->
+                <div class="glassmorphic-card p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-400 font-medium">Total Earnings</span>
+                        <i data-lucide="wallet" class="w-6 h-6 text-cyan-400"></i>
+                    </div>
+                    <div class="text-4xl font-bold text-cyan-400">
+                        <span id="total-earnings-counter">0.00</span> USD
+                    </div>
+                    <span class="text-sm text-green-400 flex items-center space-x-1 mt-2">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>+2.5% (24h)</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrade Confirmation Modal -->
+        <div id="upgrade-modal" class="modal">
+            <div class="modal-content text-center">
+                <h4 id="modal-title" class="text-2xl font-bold gradient-text mb-4">Upgrade</h4>
+                <p class="text-lg text-gray-300 mb-4">
+                    <span id="modal-level-name"></span>
+                    <br>
+                    <span class="text-sm text-gray-400">Required Amount: </span><span id="modal-amount-required" class="text-lg font-bold text-cyan-400"></span>
+                </p>
+                <div class="flex justify-center space-x-4 mt-6">
+                    <button id="modal-upgrade-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                        Upgrade Now
+                    </button>
+                    <button id="modal-cancel-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-3 px-6 rounded-full transition-all duration-200 transform hover:scale-105">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Box for Insufficient Funds or other errors -->
+        <div id="message-box" class="fixed bottom-8 right-8 p-4 rounded-xl bg-red-600/50 backdrop-blur-md shadow-lg text-white font-medium opacity-0 transition-opacity duration-300 z-50">
+            <p id="message-text">Message</p>
+        </div>
+
+        <!-- Wallet Connect Bottom Bar -->
+        <div class="wallet-connect-bar">
+            <button id="connect-wallet-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                Connect Wallet
+            </button>
+        </div>
+
     </div>
 
-    <!-- Bottom Button -->
-    <div class="bottom-button">Open</div>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide-js@latest"></script>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide Icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // --- User Data and Application State ---
+            let userState = {
+                currentLevel: 1,
+                balance: 1500, // Starting balance in USDT
+                lastClaimTimestamp: 0, // Timestamp of the last profit claim
+                walletConnected: false
+            };
+            
+            // A simple mapping of levels to their ROI percentages for profit calculation
+            const roiPercentages = {
+                1: 0.018, // 1.8%
+                2: 0.025, // 2.5%
+                3: 0.032, // 3.2%
+                4: 0.038, // 3.8%
+                5: 0.0425, // Average of 4% and 4.5%
+                6: 0.0465  // Average of 4.5% and 4.8%
+            };
+
+            const miningLevels = [
+                { id: 1, name: 'Basic Miner', amount: { min: 500, max: 2000 }, roi: '1.8%' },
+                { id: 2, name: 'Advanced Miner', amount: { min: 2001, max: 5000 }, roi: '2.5%' },
+                { id: 3, name: 'Pro Miner', amount: { min: 5001, max: 20000 }, roi: '3.2%' },
+                { id: 4, name: 'Elite Miner', amount: { min: 20001, max: 50000 }, roi: '3.8%' },
+                { id: 5, name: 'Master Miner', amount: { min: 50001, max: 100000 }, roi: '4% – 4.5%' },
+                { id: 6, name: 'Legendary Miner', amount: { min: 100001, max: 500000 }, roi: '4.5% – 4.8%' },
+            ];
+            
+            const ethPriceUsdt = 3500; // Static ETH price for calculation
+
+            // --- UI Element References ---
+            const dashboardContentEl = document.getElementById('dashboard-content');
+            const profileContentEl = document.getElementById('profile-content');
+            
+            const dashboardTabBtn = document.getElementById('dashboard-tab');
+            const profileTabBtn = document.getElementById('profile-tab');
+
+            const userIdEl = document.getElementById('user-id');
+            const userLevelProfileEl = document.getElementById('user-level-profile');
+            const totalEarningsCounterEl = document.getElementById('total-earnings-counter');
+
+            const miningLevelCards = document.querySelectorAll('.mining-level-card');
+            const upgradeModal = document.getElementById('upgrade-modal');
+            const modalLevelName = document.getElementById('modal-level-name');
+            const modalAmountRequired = document.getElementById('modal-amount-required');
+            const modalUpgradeBtn = document.getElementById('modal-upgrade-btn');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            
+            const claimProfitBtn = document.getElementById('claim-profit-btn');
+            const claimButtonTextEl = document.getElementById('claim-button-text');
+            const claimTimerEl = document.getElementById('claim-timer');
+            const profitDisplayValuesEl = document.getElementById('profit-display-values');
+            
+            // New glow elements
+            const ethGlowEl = document.getElementById('eth-glow');
+            const usdtGlowEl = document.getElementById('usdt-glow');
+            const connectWalletBtn = document.getElementById('connect-wallet-btn');
+            
+            // --- UI Update Functions ---
+            function showMessageBox(message, duration = 3000) {
+                messageText.textContent = message;
+                messageBox.classList.add('opacity-100');
+                setTimeout(() => {
+                    messageBox.classList.remove('opacity-100');
+                }, duration);
+            }
+
+            function updateUI() {
+                // Update User Level and Total Earnings in the My Staking tab
+                userLevelProfileEl.textContent = userState.currentLevel;
+                totalEarningsCounterEl.textContent = userState.balance.toFixed(2);
+                
+                // Add a placeholder for user ID until we get real data
+                userIdEl.textContent = userState.walletConnected ? 'Connected' : 'loading...';
+                
+                // Calculate and display current profit in both ETH and USDT
+                const dailyProfitUsdt = userState.balance * (roiPercentages[userState.currentLevel] || 0);
+                const dailyProfitEth = dailyProfitUsdt / ethPriceUsdt;
+
+                // Update the new profit display element
+                profitDisplayValuesEl.innerHTML = `<span class="text-indigo-400">${dailyProfitEth.toFixed(4)} ETH</span> / <span class="text-green-400">${dailyProfitUsdt.toFixed(2)} USDT</span>`;
+
+                // Update Mining Level Cards on the Dashboard tab
+                miningLevelCards.forEach(card => {
+                    const level = parseInt(card.dataset.level, 10);
+                    const statusEl = card.querySelector('[data-status="level-status"]');
+                    const iconEl = card.querySelector('i');
+
+                    // Reset card styles
+                    card.classList.remove('bg-indigo-600/20', 'border-indigo-400', 'cursor-not-allowed', 'hover:bg-gray-800/50', 'bg-emerald-600/20', 'border-emerald-400');
+                    card.classList.add('glassmorphic-card');
+                    iconEl.classList.remove('text-indigo-400', 'text-gray-400');
+
+                    if (level === userState.currentLevel) {
+                        // Active level
+                        card.classList.add('bg-indigo-600/20', 'border-indigo-400');
+                        card.style.cursor = 'default';
+                        statusEl.textContent = 'Active';
+                        statusEl.classList.remove('text-gray-400', 'text-green-400');
+                        statusEl.classList.add('text-indigo-200');
+                        iconEl.classList.add('text-indigo-400');
+                    } else if (level === userState.currentLevel + 1) {
+                        // Next level (Available for upgrade)
+                        card.classList.add('glassmorphic-card', 'hover:bg-gray-800/50');
+                        card.style.cursor = 'pointer';
+                        statusEl.textContent = 'Upgrade';
+                        statusEl.classList.remove('text-indigo-200', 'text-gray-400');
+                        statusEl.classList.add('text-emerald-400');
+                        iconEl.classList.add('text-emerald-400');
+                    } else {
+                        // Inactive/Locked levels
+                        card.classList.add('glassmorphic-card');
+                        card.style.cursor = 'not-allowed';
+                        statusEl.textContent = 'Inactive';
+                        statusEl.classList.remove('text-indigo-200', 'text-green-400', 'text-emerald-400');
+                        statusEl.classList.add('text-gray-400');
+                        iconEl.classList.add('text-gray-400');
+                    }
+                });
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons(); // Icons may change color, so re-render
+                }
+            }
+            
+            // Function to handle tab clicks and update UI
+            function handleTabChange(activeTab) {
+                // Hide all content sections first
+                dashboardContentEl.classList.add('hidden');
+                profileContentEl.classList.add('hidden');
+
+                // Deactivate all tab buttons
+                const allTabBtns = [dashboardTabBtn, profileTabBtn];
+                allTabBtns.forEach(btn => {
+                    btn.classList.remove('bg-indigo-600', 'text-white', 'tab-active');
+                    btn.classList.add('bg-gray-700', 'hover:bg-gray-600', 'text-gray-200');
+                });
+
+                // Show the active tab's content and activate its button
+                if (activeTab === 'dashboard') {
+                    dashboardContentEl.classList.remove('hidden');
+                    dashboardTabBtn.classList.add('bg-indigo-600', 'text-white', 'tab-active');
+                    updateClaimButtonState(); // Update the claim button state when dashboard is shown
+                } else if (activeTab === 'profile') {
+                    profileContentEl.classList.remove('hidden');
+                    profileTabBtn.classList.add('bg-indigo-600', 'text-white', 'tab-active');
+                }
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons(); // Re-render icons if needed
+                }
+            }
+            
+            function updateClaimButtonState() {
+                const now = Date.now();
+                const oneDayInMs = 24 * 60 * 60 * 1000;
+                const timeSinceLastClaim = now - userState.lastClaimTimestamp;
+                
+                // New logic for the 24-hour glow effect
+                const glowFadeTime = oneDayInMs;
+                const timeRemainingForGlow = glowFadeTime - timeSinceLastClaim;
+
+                if (timeRemainingForGlow > 0) {
+                    const opacity = Math.max(0, timeRemainingForGlow / glowFadeTime);
+                    ethGlowEl.style.opacity = opacity;
+                    usdtGlowEl.style.opacity = opacity;
+                } else {
+                    ethGlowEl.style.opacity = 0;
+                    usdtGlowEl.style.opacity = 0;
+                }
+
+                if (timeSinceLastClaim >= oneDayInMs) {
+                    // Claim is available
+                    claimProfitBtn.disabled = false;
+                    claimButtonTextEl.textContent = "Claim Daily Profit";
+                    claimProfitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    claimTimerEl.textContent = "Your profit is ready to be claimed!";
+                    claimTimerEl.classList.remove('text-red-400');
+                    claimTimerEl.classList.add('text-green-400');
+                } else {
+                    // Claim is not yet available, show countdown
+                    claimProfitBtn.disabled = true;
+                    claimButtonTextEl.textContent = "Claimed";
+                    claimProfitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    claimTimerEl.classList.remove('text-green-400');
+                    claimTimerEl.classList.add('text-red-400');
+                    
+                    const timeLeftInMs = oneDayInMs - timeSinceLastClaim;
+                    const hours = Math.floor(timeLeftInMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeftInMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeftInMs % (1000 * 60)) / 1000);
+                    
+                    claimTimerEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                }
+            }
+
+
+            function showModal(levelData) {
+                modalLevelName.textContent = levelData.name;
+                modalAmountRequired.textContent = `${levelData.amount.min} USDT`;
+                upgradeModal.classList.add('open');
+            }
+
+            function hideModal() {
+                upgradeModal.classList.remove('open');
+            }
+
+            // --- Wallet Connect Function ---
+            function connectWallet() {
+                if (window.ethereum) {
+                    window.ethereum.request({ method: 'eth_requestAccounts' })
+                        .then(accounts => {
+                            userState.walletConnected = true;
+                            userIdEl.textContent = accounts[0].substring(0, 6) + '...' + accounts[0].substring(accounts[0].length - 4);
+                            showMessageBox('Wallet connected successfully!', 3000);
+                            updateUI();
+                        })
+                        .catch(error => {
+                            showMessageBox('Failed to connect wallet: ' + error.message, 5000);
+                        });
+                } else {
+                    showMessageBox('Please install MetaMask to connect your wallet.', 5000);
+                }
+            }
+
+            // --- Event Listeners ---
+            dashboardTabBtn.addEventListener('click', () => handleTabChange('dashboard'));
+            profileTabBtn.addEventListener('click', () => handleTabChange('profile'));
+
+            miningLevelCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const clickedLevel = parseInt(card.dataset.level, 10);
+                    const levelData = miningLevels.find(level => level.id === clickedLevel);
+                    
+                    if (clickedLevel <= userState.currentLevel) {
+                        showMessageBox('This is your current mining level.', 3000);
+                        return;
+                    }
+                    
+                    if (clickedLevel !== userState.currentLevel + 1) {
+                        showMessageBox('You must upgrade the previous level first.', 3000);
+                        return;
+                    }
+
+                    // Check if user has enough balance
+                    if (userState.balance >= levelData.amount.min) {
+                        showModal(levelData);
+                    } else {
+                        showMessageBox(`Insufficient funds: ${levelData.amount.min} USDT required.`, 5000);
+                    }
+                });
+            });
+
+            modalUpgradeBtn.addEventListener('click', () => {
+                // Find the next level to upgrade to
+                const nextLevel = userState.currentLevel + 1;
+                const levelData = miningLevels.find(level => level.id === nextLevel);
+                
+                if (userState.balance >= levelData.amount.min) {
+                    // Simulate an upgrade: deduct funds and increase level
+                    userState.balance -= levelData.amount.min;
+                    userState.currentLevel = nextLevel;
+                    
+                    // Update the UI to reflect the change
+                    updateUI();
+                    hideModal();
+                    showMessageBox(`Successfully upgraded to Mining Level ${userState.currentLevel}.`, 5000);
+                } else {
+                    showMessageBox(`Insufficient funds: ${levelData.amount.min} USDT required.`, 5000);
+                }
+            });
+
+            modalCancelBtn.addEventListener('click', hideModal);
+            
+            // Daily Profit Claim Button Listener
+            claimProfitBtn.addEventListener('click', () => {
+                if (!claimProfitBtn.disabled && userState.walletConnected) {
+                    // Calculate profit based on current level and balance
+                    const dailyProfit = userState.balance * (roiPercentages[userState.currentLevel] || 0);
+                    
+                    // Update user's balance and last claim time
+                    userState.balance += dailyProfit;
+                    userState.lastClaimTimestamp = Date.now();
+                    
+                    // Update the UI
+                    updateUI();
+                    showMessageBox(`Daily Profit ${dailyProfit.toFixed(2)} USD claimed.`, 5000);
+                } else if (!userState.walletConnected) {
+                    showMessageBox('Please connect your wallet to claim profit.', 5000);
+                }
+            });
+
+            // Wallet Connect Button Listener
+            connectWalletBtn.addEventListener('click', connectWallet);
+
+            // --- Counter Animation Function (Existing) ---
+            function animateCounter(elementId, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const currentValue = start + progress * (end - start);
+                    document.getElementById(elementId).textContent = currentValue.toFixed(2);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            // Simulate real-time data on load
+            const startMiningDataSimulation = () => {
+                animateCounter('total-earnings-counter', 0, userState.balance, 2000);
+            };
+            
+            // Set up a timer to update the countdown
+            setInterval(updateClaimButtonState, 1000);
+
+            // Initial UI setup on load
+            updateUI();
+            startMiningDataSimulation();
+            handleTabChange('dashboard'); // Start on the dashboard tab
+        });
+    </script>
