@@ -1,0 +1,14 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+h1 {
+    color: purple;
+    text-align: center;
+}
+#dashboard {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid purple;
+}
